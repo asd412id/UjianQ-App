@@ -11,11 +11,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.WindowManager;
+import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -33,6 +34,7 @@ public class UjianWebViewActivity extends AppCompatActivity {
     WebView webView;
     String url;
     SwipeRefreshLayout refreshLayout;
+    Boolean loaded = false;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -46,14 +48,11 @@ public class UjianWebViewActivity extends AppCompatActivity {
         assert bundle != null;
         url = bundle.getString("url");
         webView = findViewById(R.id.webview);
-        webView.clearCache(true);
-        webView.clearFormData();
-        webView.clearHistory();
-        webView.loadUrl(url);
         webView.setWebViewClient(new WebViewClient(){
             @Override
             public void onPageFinished(WebView view, String url) {
                 refreshLayout.setRefreshing(false);
+                loaded = true;
             }
 
             @Override
@@ -61,15 +60,37 @@ public class UjianWebViewActivity extends AppCompatActivity {
                 refreshLayout.setRefreshing(true);
             }
         });
-        webView.getSettings().setJavaScriptEnabled(true);
+        webView.setWebChromeClient(new WebChromeClient());
+        webView.setLongClickable(true);
+        webView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                return true;
+            }
+        });
+
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setLoadWithOverviewMode(true);
+        webSettings.setUseWideViewPort(true);
+        webSettings.setBuiltInZoomControls(true);
+        webSettings.setDisplayZoomControls(false);
+        webSettings.setSupportZoom(true);
+        webSettings.setDefaultTextEncodingName("utf-8");
 
         refreshLayout = findViewById(R.id.swipe);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                checkUrl();
+                checkUrl(true);
             }
         });
+
+        webView.clearCache(true);
+        webView.clearFormData();
+        webView.clearHistory();
+        checkUrl(false);
     }
 
     @Override
@@ -77,41 +98,46 @@ public class UjianWebViewActivity extends AppCompatActivity {
         if(keyCode == KeyEvent.KEYCODE_BACK){
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Konfirmasi")
-                    .setMessage("Pastikan ujian telah selesai!\nYakin akan keluar?")
-                    .setPositiveButton("Tidak", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.cancel();
-                        }
-                    })
-                    .setNegativeButton("Ya", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            startActivity(new Intent(UjianWebViewActivity.this,MainActivity.class));
-                            finishAffinity();
-                        }
-                    })
-                    .show();
+                .setMessage("Pastikan ujian telah selesai!\nYakin akan keluar?")
+                .setPositiveButton("Ya", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(UjianWebViewActivity.this,MainActivity.class));
+                        finishAffinity();
+                    }
+                })
+                .setNegativeButton("Tidak", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .show();
             return true;
         }
         return false;
     }
 
-    private void checkUrl() {
+    private void checkUrl(final Boolean reload) {
         RequestQueue queue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                webView.reload();
+                if (reload && loaded){
+                    webView.reload();
+                }else {
+                    webView.loadUrl(url);
+                }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 if (error instanceof NoConnectionError){
-                    Toast.makeText(UjianWebViewActivity.this,"Jaringan bermasalah! Silahkan muat ulang!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(UjianWebViewActivity.this,"Jaringan bermasalah! Silahkan periksa jaringan perangkat!",Toast.LENGTH_SHORT).show();
                 }else if (error.networkResponse!=null && error.networkResponse.data!=null){
                     Toast.makeText(UjianWebViewActivity.this,"Server tidak ditemukan!",Toast.LENGTH_SHORT).show();
                 }
+                refreshLayout.setRefreshing(false);
             }
         });
         stringRequest.setRetryPolicy(new DefaultRetryPolicy(5000,
