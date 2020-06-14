@@ -1,8 +1,5 @@
 package com.asd412id.ujianqapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -14,12 +11,14 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NoConnectionError;
@@ -87,9 +86,9 @@ public class UjianWebViewActivity extends AppCompatActivity {
             }
         });
 
-        webView.clearCache(true);
-        webView.clearFormData();
-        webView.clearHistory();
+//        webView.clearCache(true);
+//        webView.clearFormData();
+//        webView.clearHistory();
         checkUrl(false);
     }
 
@@ -132,12 +131,15 @@ public class UjianWebViewActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                Intent intent = new Intent(UjianWebViewActivity.this,MainActivity.class);
                 if (error instanceof NoConnectionError){
-                    Toast.makeText(UjianWebViewActivity.this,"Jaringan bermasalah! Silahkan periksa jaringan perangkat!",Toast.LENGTH_SHORT).show();
+                    intent.putExtra("error","network");
                 }else if (error.networkResponse!=null && error.networkResponse.data!=null){
-                    Toast.makeText(UjianWebViewActivity.this,"Server tidak ditemukan!",Toast.LENGTH_SHORT).show();
+                    intent.putExtra("error","server");
                 }
                 refreshLayout.setRefreshing(false);
+                startActivity(intent);
+                finishAffinity();
             }
         });
         stringRequest.setRetryPolicy(new DefaultRetryPolicy(5000,
