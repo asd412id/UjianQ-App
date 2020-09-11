@@ -20,22 +20,23 @@
 
             <RelativeLayout
                 android:id="@+id/app_logo"
-                android:layout_width="150dp"
+                android:layout_width="125dp"
                 android:layout_height="150dp"
                 android:layout_centerHorizontal="true"
                 android:background="@drawable/app_icon"/>
 
             <TextView
                 android:id="@+id/app_title"
+                android:layout_marginTop="15dp"
                 android:layout_below="@id/app_logo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:layout_gravity="center"
-                android:text="UjianQ App"
-                android:textSize="30sp"
+                android:text="@string/app_title"
+                android:textSize="27sp"
                 android:textStyle="bold"
-                android:textColor="#FFF"/>
+                android:textColor="@color/colorPrimaryDark"/>
 
             <TextView
                 android:id="@+id/app_subtitle"
@@ -44,9 +45,9 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:layout_gravity="center"
-                android:text="Aplikasi Ujian Sekolah"
+                android:text="@string/app_desc"
                 android:textSize="20sp"
-                android:textColor="#FFF"/>
+                android:textColor="@color/colorPrimaryDark"/>
 
         </RelativeLayout>
 
@@ -60,9 +61,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
-                android:text="Created by asd412id"
+                android:text="@string/app_copyright"
                 android:textSize="15sp"
-                android:textColor="#FFF"
+                android:textColor="@color/colorPrimary"
                 android:gravity="center_horizontal" />
         </RelativeLayout>
 

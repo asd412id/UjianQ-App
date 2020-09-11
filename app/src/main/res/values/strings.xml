@@ -1,3 +1,12 @@
 <resources>
-    <string name="app_name">UjianQ App</string>
+    <string name="app_name">UjianQ</string>
+    <string name="app_title">UPTD SMPN 39 SINJAI</string>
+    <string name="app_desc">Aplikasi Ujian Sekolah</string>
+    <string name="app_copyright">Created by asd412id</string>
+    <string name="btn_init_start">Mulai Ujian</string>
+    <string name="set_address_label">Alamat Server</string>
+    <string name="btn_dialog_save">SIMPAN</string>
+    <string name="btn_dialog_cancel">BATAL</string>
+    <string name="username_label">Username</string>
+    <string name="password_label">Password</string>
 </resources>

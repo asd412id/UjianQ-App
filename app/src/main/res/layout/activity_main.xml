@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#2733B5E5"
     android:padding="15dp"
     tools:context=".MainActivity">
 
@@ -22,7 +20,7 @@
             <RelativeLayout
                 android:id="@+id/app_logo"
                 android:layout_width="95dp"
-                android:layout_height="95dp"
+                android:layout_height="115dp"
                 android:layout_centerHorizontal="true"
                 android:background="@drawable/app_icon"/>
 
@@ -31,10 +29,12 @@
                 android:layout_below="@id/app_logo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:textAlignment="center"
                 android:layout_gravity="center"
-                android:text="UjianQ App"
+                android:text="@string/app_title"
                 android:textSize="25sp"
+                android:textColor="@color/colorPrimaryDark"
                 android:textStyle="bold"/>
 
             <TextView
@@ -44,7 +44,8 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="center"
                 android:layout_gravity="center"
-                android:text="Aplikasi Ujian Sekolah"
+                android:text="@string/app_desc"
+                android:textColor="@color/colorPrimaryDark"
                 android:textSize="20sp"/>
 
         </RelativeLayout>
@@ -62,6 +63,7 @@
                 android:textAlignment="center"
                 android:layout_gravity="center"
                 tools:text="Button Hint"
+                android:textColor="@color/colorPrimaryDark"
                 android:textSize="20sp"/>
 
             <Button
@@ -76,7 +78,7 @@
                 android:textColor="#fff"
                 android:textStyle="bold"
 
-                android:text="Mulai Ujian"/>
+                android:text="@string/btn_init_start"/>
 
         </RelativeLayout>
 

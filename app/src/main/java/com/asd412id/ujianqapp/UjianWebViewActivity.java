@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
@@ -17,6 +18,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -32,6 +34,8 @@ import com.android.volley.toolbox.Volley;
 public class UjianWebViewActivity extends AppCompatActivity {
     WebView webView;
     String url;
+    String username;
+    String password;
     SwipeRefreshLayout refreshLayout;
     Boolean loaded = false;
 
@@ -46,12 +50,25 @@ public class UjianWebViewActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         assert bundle != null;
         url = bundle.getString("url");
+        username = bundle.getString("username");
+        password = bundle.getString("password");
         webView = findViewById(R.id.webview);
         webView.setWebViewClient(new WebViewClient(){
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onPageFinished(WebView view, String url) {
                 refreshLayout.setRefreshing(false);
                 loaded = true;
+                webView.evaluateJavascript("javascript:" +
+                        "var noujian = document.getElementById('noujian');" +
+                        "var password = document.getElementById('password');" +
+                        "if(noujian){" +
+                            "noujian.value = '"+username+"';" +
+                        "}" +
+                        "if(password){" +
+                            "password.value = '"+password+"';"+
+                        "}"
+                        ,null);
             }
 
             @Override
@@ -86,9 +103,6 @@ public class UjianWebViewActivity extends AppCompatActivity {
             }
         });
 
-//        webView.clearCache(true);
-//        webView.clearFormData();
-//        webView.clearHistory();
         checkUrl(false);
     }
 

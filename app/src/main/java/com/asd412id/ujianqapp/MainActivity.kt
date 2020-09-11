@@ -1,5 +1,6 @@
 package com.asd412id.ujianqapp
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
@@ -24,37 +25,43 @@ class MainActivity : AppCompatActivity() {
 
         val error = intent.getStringExtra("error")
         val url = getUrl()
-        if (url=="")
-            btnscan.setText("Masukkan Alamat Server")
+        val username = getUsername()
+        val password = getPassword()
+        if (username == "" || password == "" || url == "")
+            btnscan.setText("Masukkan Data Ujian")
 
         if (error==null){
-            if (!url.equals(""))
+            if (!username.equals("") && !password.equals("") && !url.equals(""))
                 hint.text = Html.fromHtml("Tekan <b>\"Mulai Ujian\"</b> untuk membuka halaman ujian " +
-                        "atau tekan dan tahan untuk mengubah alamat server!")
+                        "atau tekan dan tahan untuk mengubah data ujian!")
             else
-                hint.text = Html.fromHtml("Tekan <b>\"Masukkan Alamat Server\"</b> untuk mengubah alamat server!")
+                hint.text = Html.fromHtml("Tekan <b>\"Masukkan Data Ujian\"</b> untuk mengubah data ujian!")
         }else{
             val statusText: String
             if (error=="network"){
-                statusText = "Server ujian tidak ditemukan! Tekan dan tahan tombol di bawah untuk mengubah alamat server."
+                statusText = "Server ujian tidak ditemukan! Tekan dan tahan tombol di bawah untuk mengubah data ujian."
             }else{
-                statusText = "Perangkat tidak terhubung ke jaringan! Tekan dan tahan tombol di bawah untuk mengubah alamat server."
+                statusText = "Perangkat tidak terhubung ke jaringan! Tekan dan tahan tombol di bawah untuk mengubah data ujian."
             }
             hint.setTextColor(Color.RED)
             hint.text = statusText
         }
 
-        btnscan.setOnClickListener({
+        btnscan.setOnClickListener {
             val url = getUrl()
-            if (url!=""){
-                val intent = Intent(this,UjianWebViewActivity::class.java)
-                intent.putExtra("url",url)
+            val username = getUsername()
+            val password = getPassword()
+            if (username != "" && password != "" && url != "") {
+                val intent = Intent(this, UjianWebViewActivity::class.java)
+                intent.putExtra("url", url)
+                intent.putExtra("username", username)
+                intent.putExtra("password", password)
                 startActivity(intent)
                 finishAffinity()
-            }else{
+            } else {
                 setServerAddress()
             }
-        })
+        }
 
         btnscan.setOnLongClickListener(View.OnLongClickListener {
             setServerAddress()
@@ -63,51 +70,73 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun getConfig(): SharedPreferences {
+    private fun getConfig(): SharedPreferences {
         return getSharedPreferences("configs", 0)
     }
 
     private fun getUrl(): String? {
-        return getConfig().getString("url","")
+        return getConfig().getString("url","https://ujian.smpn39sinjai.sch.id")
     }
 
+    private fun getUsername(): String? {
+        return getConfig().getString("username","")
+    }
+
+    private fun getPassword(): String? {
+        return getConfig().getString("password","")
+    }
+
+    @SuppressLint("InflateParams")
     private fun setServerAddress() {
         val view = layoutInflater.inflate(R.layout.address_dialog,null)
         val builder = AlertDialog.Builder(this)
         val btnSimpan = view.findViewById<Button>(R.id.btnSimpan)
         val btnCancel = view.findViewById<Button>(R.id.btnCancel)
         val addr = view.findViewById<EditText>(R.id.addr)
+        val editusername = view.findViewById<EditText>(R.id.edit_username)
+        val editpassword = view.findViewById<EditText>(R.id.edit_password)
+        editusername.requestFocus()
         addr.setText(getUrl())
+        editusername.setText(getUsername())
+        editpassword.setText(getPassword())
         builder.apply {
             setCancelable(false)
-            setTitle("Alamat Server")
+            setTitle("Data Ujian")
             setView(view)
         }
         val dialog = builder.create()
         dialog.show()
         btnSimpan.setOnClickListener(View.OnClickListener {
-            if (URLUtil.isValidUrl(addr.text.toString()) && !addr.text.equals("")){
+            if (URLUtil.isValidUrl(addr.text.toString()) && editusername?.text.toString().trim().isNotEmpty() && editpassword?.text.toString().isNotEmpty() && addr?.text.toString().trim().isNotEmpty()){
                 with(getConfig().edit()){
-                    putString("url",addr.text.toString())
+                    putString("url",addr?.text.toString().trim())
+                    putString("username",editusername?.text.toString().trim())
+                    putString("password",editpassword?.text.toString().trim())
                     commit()
                 }
-                if (!addr.text.equals("")) {
+                if (editusername?.text.toString().trim() != "" && editpassword?.text.toString().trim() != "" && addr?.text.toString().trim() != "") {
                     hint.text = Html.fromHtml(
                         "Tekan <b>\"Mulai Ujian\"</b> untuk membuka halaman ujian " +
-                                "atau tekan dan tahan untuk mengubah alamat server!"
+                                "atau tekan dan tahan untuk mengubah data ujian!"
                     )
                     btnscan.setText("Mulai Ujian")
                 }else {
                     hint.text = Html.fromHtml(
                         "Tekan <b>\"Masukkan Alamat Server\"</b> untuk membuka halaman ujian " +
-                                "atau tekan dan tahan untuk mengubah alamat server!"
+                                "atau tekan dan tahan untuk mengubah data ujian!"
                     )
-                    btnscan.setText("Masukkan Alamat Server")
+                    btnscan.setText("Masukkan Data Ujian")
                 }
                 dialog.dismiss()
-                Toast.makeText(applicationContext,"Alamat Server berhasil diubah!",Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext,"Data Ujian berhasil diubah!",Toast.LENGTH_SHORT).show()
             }else{
-                Toast.makeText(applicationContext,"Alamat Server tidak sesuai!",Toast.LENGTH_SHORT).show()
+                if (editusername?.text.toString().trim() == ""){
+                    Toast.makeText(applicationContext,"Username tidak boleh kosong!",Toast.LENGTH_SHORT).show()
+                }else if (editpassword?.text.toString().trim() == ""){
+                    Toast.makeText(applicationContext,"Password tidak boleh kosong!",Toast.LENGTH_SHORT).show()
+                }else{
+                    Toast.makeText(applicationContext,"Alamat server tidak boleh kosong!",Toast.LENGTH_SHORT).show()
+                }
             }
         })
         btnCancel.setOnClickListener(View.OnClickListener {
